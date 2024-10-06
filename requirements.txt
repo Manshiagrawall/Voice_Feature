@@ -1,5 +1,5 @@
 pyttsx3
 SpeechRecognition
-PyAudio
+pyaudio
 setuptools
 python-docx  
