@@ -1,3 +1,4 @@
-pyttsx3
-SpeechRecognition
-python-docx  
+speechrecognition
+gtts
+playsound
+python-docx

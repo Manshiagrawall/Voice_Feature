@@ -1,43 +1,37 @@
 import speech_recognition as sr
-import pyttsx3
-import time
+from gtts import gTTS
+import os
+from playsound import playsound
 from docx import Document
-
-# Initialize the text-to-speech engine
-engine = pyttsx3.init()
-
-# Flag to control voice input functionality
-voice_input_active = True
+import time
 
 # Create a new Document
 document = Document()
 
 def speak(text):
-    engine.say(text)
-    engine.runAndWait()
+    # Use Google TTS to convert text to speech
+    tts = gTTS(text=text, lang='en')
+    tts.save("temp.mp3")  # Save the audio file temporarily
+    playsound("temp.mp3")  # Play the audio file
+    os.remove("temp.mp3")  # Remove the audio file after playing
 
 def listen_to_voice():
-    global voice_input_active
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        speak("Please enter your phone number.")
+        print("Listening...")
+        audio = recognizer.listen(source)
 
-    if voice_input_active:
-        recognizer = sr.Recognizer()
-        with sr.Microphone() as source:
-            speak("Please enter your phone number.")
-            print("Listening...")
-            audio = recognizer.listen(source)
-
-            try:
-                phone_number = recognizer.recognize_google(audio)
-                print(f"You said: {phone_number}")
-                voice_input_active = False  # Disable voice input after number is entered
-                return phone_number
-            except sr.UnknownValueError:
-                speak("Sorry, I did not understand that.")
-                return None
-            except sr.RequestError:
-                speak("Could not request results from Google Speech Recognition service.")
-                return None
-    return None  # If voice input is disabled or an error occurred
+        try:
+            phone_number = recognizer.recognize_google(audio)
+            print(f"You said: {phone_number}")
+            return phone_number
+        except sr.UnknownValueError:
+            speak("Sorry, I did not understand that.")
+            return None
+        except sr.RequestError:
+            speak("Could not request results from Google Speech Recognition service.")
+            return None
 
 def save_to_document(content):
     # Add the content to the document
@@ -51,10 +45,8 @@ def login_with_voice():
     if phone_number:
         speak(f"You entered: {phone_number}. Logging in...")
         save_to_document(phone_number)  # Save the phone number to the document
-    # If phone_number is None, do nothing (no repeated messages)
 
 if __name__ == "__main__":
     while True:
         login_with_voice()
         time.sleep(1)  # Delay to avoid rapid looping
- 
